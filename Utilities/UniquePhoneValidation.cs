@@ -1,37 +1,36 @@
 ﻿using EmployeeCRUD.Data;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
 
 namespace EmployeeCRUD.Utilities
 {
-    public class UniquePhoneValidation : ValidationAttribute
+    public class UniquePhoneValidation : RemoteAttribute
     {
         private readonly ApplicationDbContext _context;
-
-        //public UniquePhoneValidation(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}
 
         protected override ValidationResult IsValid(
         object value, ValidationContext validationContext)
         {
+            // Get the Database Context
             var _context = (ApplicationDbContext)validationContext.GetService(typeof(ApplicationDbContext));
-            if (_context.Employees.Any(x => x.PhoneNumber == value))
+
+            PropertyInfo additionalPropertyName =
+            validationContext.ObjectInstance.GetType().GetProperty(AdditionalFields);
+
+            // Get the value of ID
+            object additionalPropertyValue =
+            additionalPropertyName.GetValue(validationContext.ObjectInstance, null);
+
+            // Check if the phone number already exists and if it does is it the same id
+            bool validateName = _context.Employees.Any
+            (x => x.PhoneNumber == (string)value && x.Id != (int)additionalPropertyValue);
+
+            if (validateName)
             {
                 return new ValidationResult(ErrorMessage);
             }
-            //var files = value as List<IFormFile>;
-            //if (files != null)
-            //{
-            //    foreach (IFormFile file in files)
-            //    {
-            //        var extension = Path.GetExtension(file.FileName);
-            //        if (!(extension == _extension))
-            //        {
-            //            return new ValidationResult(ErrorMessage);
-            //        }
-            //    }
-            //}
 
             return ValidationResult.Success;
         }

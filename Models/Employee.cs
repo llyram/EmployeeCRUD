@@ -14,7 +14,7 @@ namespace EmployeeCRUD.Models
         public string Designation { get; set; }
         [Required(ErrorMessage = "Required")]
         [RegularExpression(@"^(\d{10})$", ErrorMessage = "Invalid Phone Number")]
-        [UniquePhoneValidation(ErrorMessage = "Phone number is already in use")]
+        [UniquePhoneValidation(AdditionalFields = "Id", ErrorMessage = "Phone number is already in use")]
         public string PhoneNumber { get; set; }
         [DataType(DataType.MultilineText)]
         public string Address { get; set; }
